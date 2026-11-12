@@ -56,6 +56,19 @@ go tool mygo build -skip-installer -platform windows/amd64
 
 构建产物位于 `build/windows-amd64/Flappy Gopher.exe`。图片与 WAV 已嵌入程序，无需另附素材目录。应用标识为 `io.mzh.flappygopher`，最高分保存为该标识对应 MyGo 用户数据目录中的 `high-score.json`。本次改名不继承旧 `dev.mygo.flappybird` 的最高分与窗口位置，也不会删除旧数据；存储或音频设备不可用时不影响游玩。
 
+## GitHub Actions 与发布
+
+推送到 `main` 或提交 Pull Request 时，Test 工作流会在 Windows、macOS 和 Linux 上运行完整测试与 `go vet ./...`。
+
+发布前先更新并提交 `mygo.json` 中的 `version`，再创建同版本的 `v*` 标签：
+
+```sh
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Release 工作流会在三个原生 Runner 上重新测试并构建，全部成功后发布 Windows amd64 ZIP、macOS Universal DMG、Linux amd64 `.tar.gz` 和 `.deb`，以及统一的 `SHA256SUMS`。macOS 使用 ad hoc 签名，首次打开时可能需要按系统提示确认。
+
 ## 素材与许可证
 
 双翼飞机 Gopher 原画为 Renee French 的 CC BY 3.0 素材；应用图标和 Kenney 音效为 CC0。具体作者、原始文件、下载来源和修改方式见 `resources/ASSETS.md`。CC0 全文位于 `resources/LICENSE-CC0.txt`，音频包原始许可说明位于 `resources/audio/LICENSE.txt`。
