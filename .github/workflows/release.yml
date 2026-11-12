@@ -1,0 +1,108 @@
+name: Release
+
+"on":
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows amd64
+            os: windows-latest
+            platform: windows/amd64
+            output: windows-amd64
+            kind: windows
+          - name: macOS Universal
+            os: macos-latest
+            platform: darwin/universal
+            output: darwin-universal
+            kind: macos
+          - name: Linux amd64
+            os: ubuntu-latest
+            platform: linux/amd64
+            output: linux-amd64
+            kind: linux
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+          cache-dependency-path: go.sum
+      - name: Test
+        run: go test -count=1 ./...
+      - name: Vet
+        run: go vet ./...
+      - name: Build
+        run: go tool mygo build -skip-installer -platform "${{ matrix.platform }}"
+      - name: Package Windows
+        if: matrix.kind == 'windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path package -Force | Out-Null
+          Compress-Archive -Path "build/windows-amd64/*" -DestinationPath "package/flappy-gopher-${env:GITHUB_REF_NAME}-windows-amd64.zip" -Force
+      - name: Package macOS
+        if: matrix.kind == 'macos'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p package
+          cp build/darwin-universal/*.dmg package/
+      - name: Package Linux
+        if: matrix.kind == 'linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p package
+          cp build/linux-amd64/*.tar.gz build/linux-amd64/*.deb package/
+      - name: Upload package
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-${{ matrix.kind }}
+          path: package/
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: release-*
+          path: package
+          merge-multiple: true
+      - name: Verify packages and generate checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          windows=(package/*windows-amd64.zip)
+          macos=(package/*.dmg)
+          linux_tar=(package/*.tar.gz)
+          linux_deb=(package/*.deb)
+          test "${#windows[@]}" -eq 1
+          test "${#macos[@]}" -eq 1
+          test "${#linux_tar[@]}" -eq 1
+          test "${#linux_deb[@]}" -eq 1
+          cd package
+          sha256sum -- *.zip *.dmg *.tar.gz *.deb > SHA256SUMS
+      - name: Publish release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: package/*
+          generate_release_notes: true
+          draft: false
