@@ -36,7 +36,7 @@
 - `validate_test(workflow)` 检查测试触发器、权限、矩阵和 Go 命令。
 - YAML 的 `"on"` 必须加引号，避免 PyYAML 按 YAML 1.1 将其解析为布尔值。
 
-- [ ] **步骤 1：先创建只覆盖 Test 工作流的失败校验器**
+- [x] **步骤 1：先创建只覆盖 Test 工作流的失败校验器**
 
 创建 `scripts/check_workflows.py`：
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     print("test.yml: OK")
 ```
 
-- [ ] **步骤 2：运行校验器并确认文件缺失导致失败**
+- [x] **步骤 2：运行校验器并确认文件缺失导致失败**
 
 运行：
 
@@ -89,7 +89,7 @@ python scripts/check_workflows.py
 
 预期：退出码非 0，出现 `FileNotFoundError`，因为 `.github/workflows/test.yml` 尚不存在。
 
-- [ ] **步骤 3：创建三平台 Test 工作流**
+- [x] **步骤 3：创建三平台 Test 工作流**
 
 创建 `.github/workflows/test.yml`：
 
@@ -128,7 +128,7 @@ jobs:
         run: go vet ./...
 ```
 
-- [ ] **步骤 4：运行结构校验和完整 Go 检查**
+- [x] **步骤 4：运行结构校验和完整 Go 检查**
 
 运行：
 
@@ -140,7 +140,7 @@ python scripts/check_workflows.py
 
 预期：输出 `test.yml: OK`，Go 测试通过，vet 无诊断。
 
-- [ ] **步骤 5：提交任务 1**
+- [x] **步骤 5：提交任务 1**
 
 ```bash
 git add .github/workflows/test.yml scripts/check_workflows.py
@@ -160,7 +160,7 @@ git commit -m "ci: add cross-platform test workflow"
 - `publish` 使用 `needs: build`，合并下载到 `package/`。
 - `validate_release(workflow)` 检查三个目标、发布依赖、权限和产物断言。
 
-- [ ] **步骤 1：先扩展校验器，使 Release 缺失时失败**
+- [x] **步骤 1：先扩展校验器，使 Release 缺失时失败**
 
 把 `scripts/check_workflows.py` 完整替换为：
 
@@ -233,7 +233,7 @@ if __name__ == "__main__":
     print("release.yml: OK")
 ```
 
-- [ ] **步骤 2：运行校验器并确认 Release 文件缺失**
+- [x] **步骤 2：运行校验器并确认 Release 文件缺失**
 
 运行：
 
@@ -243,7 +243,7 @@ python scripts/check_workflows.py
 
 预期：先输出 `test.yml: OK`，随后因 `release.yml` 不存在而出现 `FileNotFoundError`。
 
-- [ ] **步骤 3：创建三平台 Release 工作流**
+- [x] **步骤 3：创建三平台 Release 工作流**
 
 创建 `.github/workflows/release.yml`：
 
@@ -360,7 +360,7 @@ jobs:
 
 `matrix.output` 是构建目录的声明性元数据；打包步骤显式使用相同目录，避免把 shell 拼接隐藏在表达式中。
 
-- [ ] **步骤 4：运行结构和回归检查**
+- [x] **步骤 4：运行结构和回归检查**
 
 运行：
 
@@ -372,7 +372,7 @@ python scripts/check_workflows.py
 
 预期：输出 `test.yml: OK` 和 `release.yml: OK`，Go 检查通过。
 
-- [ ] **步骤 5：提交任务 2**
+- [x] **步骤 5：提交任务 2**
 
 ```bash
 git add .github/workflows/release.yml scripts/check_workflows.py
@@ -391,7 +391,7 @@ git commit -m "ci: add cross-platform release workflow"
 - README 说明普通推送只触发测试，版本标签触发发布。
 - 实际 Release 不由本次实施触发。
 
-- [ ] **步骤 1：在 README 的构建段落后添加发布说明**
+- [x] **步骤 1：在 README 的构建段落后添加发布说明**
 
 在“构建 Windows 版”段落之后、“素材与许可证”之前插入：
 
@@ -410,7 +410,7 @@ git push origin v0.1.0
 Release 工作流会在三个原生 Runner 上重新测试并构建，全部成功后发布 Windows amd64 ZIP、macOS Universal DMG、Linux amd64 `.tar.gz` 和 `.deb`，以及统一的 `SHA256SUMS`。macOS 使用 ad hoc 签名，首次打开时可能需要按系统提示确认。
 ````
 
-- [ ] **步骤 2：执行提交前完整验证**
+- [x] **步骤 2：执行提交前完整验证**
 
 运行：
 
@@ -424,7 +424,7 @@ git status --short
 
 预期：两个工作流均为 OK，Go 检查通过，`git diff --check` 无输出；状态只包含预期 README、计划和前序已提交文件。
 
-- [ ] **步骤 3：提交文档与计划**
+- [x] **步骤 3：提交文档与计划**
 
 ```bash
 git add README.md
@@ -432,7 +432,7 @@ git add -f docs/superpowers/plans/2026-11-12-cross-platform-ci-release.md
 git commit -m "docs: explain automated releases"
 ```
 
-- [ ] **步骤 4：推送到用户仓库**
+- [x] **步骤 4：推送到用户仓库**
 
 运行：
 
@@ -442,7 +442,7 @@ git push origin main
 
 预期：GitHub `origin/main` 包含设计、两个工作流、校验器和 README 提交。若网络失败，保留全部本地提交，报告错误并停止远程核验，不能声称推送成功。
 
-- [ ] **步骤 5：核验远程提交和 Test Actions**
+- [x] **步骤 5：核验远程提交和 Test Actions**
 
 运行：
 
@@ -462,7 +462,7 @@ git log --oneline --decorate -4
 - 若失败，读取对应日志并修复工作流后重新验证。
 - 不创建或推送 `v*` 标签；Release 实际发布保持未触发。
 
-- [ ] **步骤 6：最终交付**
+- [x] **步骤 6：最终交付**
 
 最终中文回复列出：
 - 两个工作流文件及触发条件。
