@@ -67,7 +67,7 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-Release 工作流会在三个原生 Runner 上重新测试并构建，全部成功后发布 Windows amd64 ZIP、macOS Universal DMG、Linux amd64 `.tar.gz` 和 `.deb`，以及统一的 `SHA256SUMS`。macOS 使用 ad hoc 签名，首次打开时可能需要按系统提示确认。
+Release 工作流会在三个原生 Runner 上重新测试并构建，全部成功后发布 Windows amd64/arm64 ZIP、macOS Universal DMG、Linux amd64/arm64/riscv64 的 `.tar.gz` 和 `.deb`，以及统一的 `SHA256SUMS`。新增架构通过 MyGo 在现有 Runner 上交叉编译。macOS 使用 ad hoc 签名，首次打开时可能需要按系统提示确认。
 
 ## 素材与许可证
 
