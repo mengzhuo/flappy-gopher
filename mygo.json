@@ -1,0 +1,8 @@
+{
+  "name": "Flappy Gopher",
+  "slug": "flappy-gopher",
+  "identifier": "io.mzh.flappygopher",
+  "version": "0.1.0",
+  "out": "build",
+  "linux": { "webview": false, "formats": [] }
+}

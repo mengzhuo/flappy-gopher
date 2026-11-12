@@ -1,0 +1,9 @@
+.mygo/
+.design-work/
+.superpowers/
+docs/superpowers/
+build/
+build-*/
+dist/
+NVIDIA Corporation/
+*.exe
