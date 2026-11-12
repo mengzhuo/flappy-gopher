@@ -33,7 +33,9 @@ Windows 每个架构分别生成一个 ZIP；macOS 生成一个 Universal DMG；
 
 ## 文档与兼容性
 
-README 的发布产物说明同步列出全部架构。现有发布触发方式、版本号、游戏代码、素材和 Test 工作流不变。本次变更不创建或推送发布标签，也不触发实际 Release。
+README 的发布产物说明同步列出全部架构。现有发布触发方式、游戏代码、素材和 Test 工作流不变。`mygo.json` 当前版本已经是 `0.1.0`，无需再次修改版本号。
+
+用户已明确授权本次实际发布：变更验证并推送后，创建并推送 `v0.1.0` 标签，触发完整 Release 工作流。
 
 ## 验证
 
@@ -41,4 +43,6 @@ README 的发布产物说明同步列出全部架构。现有发布触发方式�
 2. 本地交叉构建 Windows ARM64、Linux ARM64 和 Linux RISC-V 64 位目标，确认 MyGo 能生成对应目录和安装包。
 3. 运行 `go test -count=1 ./...`、`go vet ./...` 和 `git diff --check`。
 4. 检查矩阵产物名称与发布数量校验一致。
-5. 推送后核验 GitHub Actions 的 Test 工作流；只有用户创建 `v*` 标签时才验证完整 Release 构建。
+5. 推送后核验 GitHub Actions 的 Test 工作流。
+6. 确认本地和远程均不存在同名标签后，创建并推送 `v0.1.0`。
+7. 核验 6 个构建任务和 `publish` 任务成功，并确认 Release 包含 2 个 Windows ZIP、1 个 macOS DMG、3 个 Linux `.tar.gz`、3 个 Linux `.deb` 和 `SHA256SUMS`。
