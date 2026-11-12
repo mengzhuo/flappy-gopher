@@ -19,6 +19,11 @@ jobs:
             platform: windows/amd64
             output: windows-amd64
             kind: windows
+          - name: Windows arm64
+            os: windows-latest
+            platform: windows/arm64
+            output: windows-arm64
+            kind: windows
           - name: macOS Universal
             os: macos-latest
             platform: darwin/universal
@@ -28,6 +33,16 @@ jobs:
             os: ubuntu-latest
             platform: linux/amd64
             output: linux-amd64
+            kind: linux
+          - name: Linux arm64
+            os: ubuntu-latest
+            platform: linux/arm64
+            output: linux-arm64
+            kind: linux
+          - name: Linux riscv64
+            os: ubuntu-latest
+            platform: linux/riscv64
+            output: linux-riscv64
             kind: linux
     steps:
       - name: Checkout
@@ -49,7 +64,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path package -Force | Out-Null
-          Compress-Archive -Path "build/windows-amd64/*" -DestinationPath "package/flappy-gopher-${env:GITHUB_REF_NAME}-windows-amd64.zip" -Force
+          Compress-Archive -Path "build/${{ matrix.output }}/*" -DestinationPath "package/flappy-gopher-${env:GITHUB_REF_NAME}-${{ matrix.output }}.zip" -Force
       - name: Package macOS
         if: matrix.kind == 'macos'
         shell: bash
@@ -63,11 +78,11 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p package
-          cp build/linux-amd64/*.tar.gz build/linux-amd64/*.deb package/
+          cp build/${{ matrix.output }}/*.tar.gz build/${{ matrix.output }}/*.deb package/
       - name: Upload package
         uses: actions/upload-artifact@v7
         with:
-          name: release-${{ matrix.kind }}
+          name: release-${{ matrix.output }}
           path: package/
           if-no-files-found: error
           retention-days: 1
@@ -90,14 +105,14 @@ jobs:
         run: |
           set -euo pipefail
           shopt -s nullglob
-          windows=(package/*windows-amd64.zip)
+          windows=(package/*windows-*.zip)
           macos=(package/*.dmg)
           linux_tar=(package/*.tar.gz)
           linux_deb=(package/*.deb)
-          test "${#windows[@]}" -eq 1
+          test "${#windows[@]}" -eq 2
           test "${#macos[@]}" -eq 1
-          test "${#linux_tar[@]}" -eq 1
-          test "${#linux_deb[@]}" -eq 1
+          test "${#linux_tar[@]}" -eq 3
+          test "${#linux_deb[@]}" -eq 3
           cd package
           sha256sum -- *.zip *.dmg *.tar.gz *.deb > SHA256SUMS
       - name: Publish release
